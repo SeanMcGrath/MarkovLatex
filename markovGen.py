@@ -103,4 +103,4 @@ q = build_quartet_dict(text)
 print 
 
 for i in range(1,10):
-	print str(randint(1,100))+ '. ' + generate_sentence(d,f,q)
+	print(str(randint(1,100))+ '. ' + generate_sentence(d,f,q))

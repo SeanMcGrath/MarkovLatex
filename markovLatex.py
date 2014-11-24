@@ -10,8 +10,6 @@ import shlex
 import string
 from pprint import pprint
 from random import choice, randint
-from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, \
-    Plot
 
 EOS = ['.','!','?']
 
