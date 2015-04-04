@@ -1,5 +1,6 @@
 from lib.markovUtilities import TextGenerator
 from lib.texUtilities import Document as doc
+from random import randint
 import sys
 
 def main(args):
@@ -24,7 +25,8 @@ def main(args):
 			print(title + '\n\n')
 			print('SPREAD ITS MIGHTY WORD THROUGHOUT THE LAND')
 			d.begin(title)
-			d.writeChapter(textGen.title(),textGen.chapter())
+			for i in range(0, randint(10,20)):
+				d.writeChapter(textGen.title(),textGen.chapter())
 			d.compile()
 		except Exception as e:
 			print(e)
