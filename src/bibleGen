@@ -7,9 +7,9 @@ import argparse, sys
 
 def main(args):
 
-	parser = argparse.ArgumentParser(description="Access the will of Gods from the command line.")
-	parser.add_argument('file', type=str, nargs='+')
-	parser.add_argument('-c','--chapters', type=int)
+	parser = argparse.ArgumentParser(description="Access the Will of the Gods from the command line.")
+	parser.add_argument('files', type=str, nargs='+', help='one or more input text files')
+	parser.add_argument('-c','--chapters', type=int, help='The number of chapters in the output text')
 	args = parser.parse_args(args)
 
 	corpus = []
