@@ -1,152 +1,193 @@
 import string
 from random import choice
-import itertools
 
 EOS = ['.','!','?']
+PUNCTUATION = set(string.punctuation)
 
 class TupleDictionary:
+    """
+    Container for couplet, triplet and quartet dictionaries
+    along with the text from which they were generated.
+    """
 
-	def __init__(self, couplets, triplets, quartets, source = None, *args):
+    def __init__(self, couplets, triplets, quartets, source = None, *args):
 
-		self.source = source
-		self.couplets = couplets
-		self.triplets = triplets
-		self.quartets = quartets
+        self.source = source
+        self.couplets = couplets
+        self.triplets = triplets
+        self.quartets = quartets
 
-class DictionaryBuilder():
 
-	def __init__(self, corpus, *args):
+class DictionaryBuilder:
+    """
+    Factory class for building TupleDictionary objects from text files.
+    """
 
-		temp = [file.read().split() for file in corpus] # split files to lines
-		self.corpus = [item for sublist in temp for item in sublist] # Flatten list of lists
+    def __init__(self, corpus):
+        """
+        Constructor
 
-	def buildQuartets(self, corpus):
+        :param corpus: a list of plain-text files.
+        """
 
-		quartets = {}
-		for i, word in enumerate(corpus):
-			try:
-				first, second, third, fourth = corpus[i], corpus[i+1], corpus[i+2], corpus[i+3]
-			except IndexError:
-				break
-			key = (first,second,third)
-			if key not in quartets:
-				quartets[key] = []
+        temp = [file.read().split() for file in corpus] # split files to lines
+        self.corpus = [item for sublist in temp for item in sublist] # Flatten list of lists
 
-			if fourth not in quartets[key]:
-				quartets[key].append(fourth)
+    @property
+    def quartets(self):
+        """
+        The dictionary of four-word strings in the corpus that begin with the key string.
+        """
 
-		return quartets
+        quartets = {}
+        for i, word in enumerate(self.corpus):
+            try:
+                first, second, third, fourth = self.corpus[i], self.corpus[i+1], self.corpus[i+2], self.corpus[i+3]
+            except IndexError:
+                break
+            key = (first,second,third)
+            if key not in quartets:
+                quartets[key] = []
 
-	def buildTriplets(self, corpus):
+            if fourth not in quartets[key]:
+                quartets[key].append(fourth)
 
-		triplets = {}
-		for i, word in enumerate(self.corpus):
-			try:
-				first, second, third = corpus[i], corpus[i+1], corpus[i+2]
-			except IndexError: break
-			key = (first,second)
-			if key not in triplets:
-				triplets[key] = []
+        return quartets
 
-			triplets[key].append(third)
+    @property
+    def triplets(self):
+        """
+        The dictionary of four-word strings in the corpus that begin with the key string.
+        """
 
-		return triplets
+        triplets = {}
+        for i, word in enumerate(self.corpus):
+            try:
+                first, second, third = self.corpus[i], self.corpus[i+1], self.corpus[i+2]
+            except IndexError: break
+            key = (first,second)
+            if key not in triplets:
+                triplets[key] = []
 
-	def buildCouplets(self, corpus):
+            triplets[key].append(third)
 
-		couplets = {}
-		for i, word in enumerate(self.corpus):
-			try:
-				first, second = corpus[i], corpus[i+1]
-			except IndexError:
-				break
-			key = first
-			if key not in couplets:
-				couplets[key] = []
+        return triplets
 
-			couplets[key].append(second)
+    @property
+    def couplets(self):
+        """
+        The dictionary of four-word strings in the corpus that begin with the key string.
+        """
 
-		return couplets
+        couplets = {}
+        for i, word in enumerate(self.corpus):
+            try:
+                first, second = self.corpus[i], self.corpus[i+1]
+            except IndexError:
+                break
+            key = first
+            if key not in couplets:
+                couplets[key] = []
 
-	def getDictionary(self):
+            couplets[key].append(second)
 
-		return TupleDictionary(
-			self.buildCouplets(self.corpus),
-			self.buildTriplets(self.corpus),
-			self.buildQuartets(self.corpus),
-			self.corpus)
+        return couplets
+
+    def build(self):
+
+        return TupleDictionary(self.couplets, self.triplets, self.quartets, self.corpus)
 
 class TextGenerator:
+    """
+    Generates pseudorandom text of arbitrary length from the input text files.
+    """
 
-	def __init__(self, corpus, *args):
+    def __init__(self, corpus):
+        """
+        Constructor
+        :param list of plain-text files form which to pull text:
+        :return:
+        """
 
-		self.tuples = DictionaryBuilder(corpus).getDictionary()
+        self.tuples = DictionaryBuilder(corpus).build()
 
-	def sentence(self):
+    def sentence(self):
+        """
+        Generate a pseudorandom sentence.
+        :return: A sentence string.
+        """
 
-		quartets = self.tuples.quartets
-		triplets = self.tuples.triplets
-		couplets = self.tuples.couplets
+        quartets = self.tuples.quartets
+        triplets = self.tuples.triplets
+        couplets = self.tuples.couplets
 
-		li = [key for key in quartets.keys() if key[0][0].isupper() and key[0][-1] not in EOS and len(key) > 1]
-		key = choice(li)
-		li = []
+        li = [key for key in quartets.keys() if key[0][0].isupper() and key[0][-1] not in EOS and len(key) > 1]
+        key = choice(li)
+        li = []
 
-		first, second,third = key
-		li.append(first)
-		li.append(second)
-		li.append(third)
+        first, second, third = key
+        li.append(first)
+        li.append(second)
+        li.append(third)
 
-		while True:
-			try:
-				if len(quartets[key]) > 1:
-					fourth = choice(quartets[key])
-				else:
-					fourth = choice(triplets[(second,third)])
-			except KeyError:
-				try:
-					fourth = choice(triplets[(second,third)])
-				except KeyError:
-					try:
-						fourth = choice(couplets[third])
-					except KeyError:
-						fourth = choice(couplets.keys())
-			li.append(fourth)
-			if fourth[-1] in EOS:
-				break
+        while True:
+            try:
+                if len(quartets[key]) > 1:
+                    fourth = choice(quartets[key])
+                else:
+                    fourth = choice(triplets[(second,third)])
+            except KeyError:
+                try:
+                    fourth = choice(triplets[(second,third)])
+                except KeyError:
+                    try:
+                        fourth = choice(couplets[third])
+                    except KeyError:
+                        fourth = choice(couplets.keys())
+            li.append(fourth)
+            if fourth[-1] in EOS:
+                break
 
-			key = (second, third,fourth)
-			first,second,third = key
+            key = (second, third,fourth)
+            first, second, third = key
 
-		return ' '.join(li)
+        return ' '.join(li)
 
-	def short(self):
+    def capital(self):
+        """
+        Select a capitalized word form the corpus.
+        :return: a single capitalized word.
+        """
 
-		li = [key for key in self.tuples.couplets.keys() if key[0][0].isupper() and key[0][-1] not in EOS]
+        keys = [key for key in self.tuples.couplets.keys() if key[0][0].isupper() and key[0][-1] not in EOS]
+        short = [choice(keys)]
+        short_str = ' '.join(short)
+        return ''.join(ch for ch in short_str if ch not in PUNCTUATION)
 
-		short = []
-		short.append(choice(li))
-		short_str = ' '.join(short)
-		exclude = set(string.punctuation)
+    def paragraph(self, sentences = choice(range(3,15))):
+        """
+        Generate a pseudorandom paragraph.
+        :param sentences: The numer of sentences in the paragraph.
+        :return: A paragraph of text.
+        """
 
-		return ''.join(ch for ch in short_str if ch not in exclude)
+        par = [self.sentence() for i in range(0, sentences)]
+        return ' '.join(par)
 
-	def paragraph(self, sentences = choice(range(3,15))):
+    def chapter(self, paragraphs = choice(range(10,100))):
+        """
+        Generate a pseudorandom chapter of a book.
+        :param paragraphs: The number of paragraphs in the chapter.
+        :return: a chapter of text
+        """
 
-		par = []
-		for i in range(0,sentences):
-			par.append(self.sentence())
+        chapter = [self.paragraph() for i in range(0, paragraphs)]
+        return '\n\n'.join(chapter)
 
-		return ' '.join(par)
+    def title(self):
+        """
+        Generate a pseudorandom title.
+        :return: a title.
+        """
 
-	def chapter(self, paragraphs = choice(range(10,100))):
-
-		chapter = []
-		for i in range(0,paragraphs):
-			chapter.append(self.paragraph())
-
-		return '\n\n'.join(chapter)
-
-	def title(self):
-
-		return r'The {} of {}'.format(self.short(),self.short())
+        return r'The {} of {}'.format(self.capital(), self.capital())
