@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from lib.markovUtilities import TextGenerator
-from lib.texUtilities import Document as doc
+from markovLatex.markov import TextGenerator
+from markovLatex.tex import Document as doc
 from random import randint
 import argparse, sys
 
