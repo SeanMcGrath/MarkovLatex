@@ -9,6 +9,6 @@ A set of utilities for gererating pseudorandom text via Markov chain and incorpo
 
 Two scripts are included - `markovgen`, which generates random text from input text files and prints it to stdout, and `biblegen`, which is a little more fun. Feed `biblegen` a list of text files, and watch as it assembles then into a holy book for your new religion.
 
-A couple interesting text files are included in `input/` if you's like to try it out.
+A couple interesting text files are included in `input/` if you'd like to try it out.
 
 Copyright Sean McGrath 2015, issued freely under the MIT license.
